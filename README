@@ -1,1 +1,41 @@
-Hello World.
+How to set arduino development under linux platform.
+
+0. Basic platform information
+    a. Linux platform: Linux Linux 3.2.0-35-generic-pae #55-Ubuntu SMP Wed Dec 5 18:04:39 UTC 2012 i686 i686 i386 GNU/Linux
+    b. VIM version: VIM - Vi IMproved 7.3
+
+1. Install packets
+    a. sudo apt-get install arduino         # arduino develop tools and libs.
+    b. sudo apt-get install arduino-mk      # arduino build makefile.
+
+2. Download and install vim plugin(arduino.vim) for arduino
+    a. http://www.vim.org/scripts/download_script.php?src_id=10674  # Download arduino.vim
+    b. make a directory .vim/syntax/ in your home directory, then copy arduino.vim to ~/.vim/syntax/
+    c. cp filetype.vim  ~/.vim/filetype.vim, so vim can detect arduino source code(*.pde).
+
+3. Prepare a script and fix a bug.
+    a. Open /usr/share/arduino/ard-parse-boards, and change the boards_txt => '/usr/share/arduino/hardware/arduino/boards.txt' (line: 12)
+    b. sudo cp /usr/share/arduino/ard-parse-boards /usr/bin/
+
+4. Prepare makefile and fix a bug.
+    a. Open /usr/share/arduino/Arduino.mk, and change $(ECHO) '#include "WProgram.h"' > $@ to $(ECHO) '#include "Arduino.h"' > $@
+
+5. Test our development environment
+    a. tar xjf led.tar.bz2.
+    b. Create a Makefile for our led project.
+        aa. touch Makefile
+        bb. Add these line in the head of the Makefile
+            ARDUINO_DIR = /usr/share/arduino # Will create this directory automatically when install arduino
+            BOARD_TAG = <your Arduino board> # Set it to uno for our board.
+            ARDUINO_PORT = /dev/<your Arduino port> # is /dev/ttyACM0 in my computer.
+            ARDUINO_LIBS =  # nothing
+            include /usr/share/arduino/Arduino.mk # Guess what
+
+            Tisp: how to lookup ARDUINO_PORT
+                 Get ready for our board, and Plug in USB, then exec dmesg
+                 $ dmesg | tail -n 20
+                 we will find some kernel message such as '[ 4259.625137] cdc_acm 2-1:1.0: ttyACM0: USB ACM device',
+                 so we known ARDUINO_PORT is /dev/ttyACM0
+    c. make
+    d. sudo make upload  # flash led binary code.
+    e. Done.
